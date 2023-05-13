@@ -14,6 +14,8 @@ export const PageNames = {
   AVAILABLE_CHANNELS_PAGE: 'AVAILABLE_CHANNELS',
   FACILITIES_PAGE: 'FACILITIES_PAGE',
   FACILITIES_TASKS_PAGE: 'FACILITIES_TASKS_PAGE',
+  MANAGE_SYNC_SCHEDULE: 'MANAGE_SYNC_SCHEDULE',
+  EDIT_SYNC_SCHEDULE: 'EDIT_SYNC_SCHEDULE',
 };
 
 export const ContentWizardPages = {
@@ -23,12 +25,6 @@ export const ContentWizardPages = {
   SELECT_DRIVE: 'SELECT_DRIVE',
   SELECT_IMPORT_SOURCE: 'SELECT_IMPORT_SOURCE',
   SELECT_NETWORK_ADDRESS: 'SELECT_NETWORK_ADDRESS',
-};
-
-// maps to possible network applications that we import/export content from
-export const ApplicationTypes = {
-  KOLIBRI: 'kolibri',
-  STUDIO: 'studio',
 };
 
 export const ContentWizardErrors = {

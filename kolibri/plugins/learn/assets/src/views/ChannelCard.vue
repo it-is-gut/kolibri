@@ -7,60 +7,70 @@
     :class="$computedClass({ ':focus': $coreOutline })"
   >
 
-    <h3
-      class="title"
-      dir="auto"
-      :style="{ borderBottom: `1px solid ${$themeTokens.fineLine}` }"
-    >
-      <TextTruncator
-        :text="title"
-        :maxHeight="titleHeight"
-        :showTooltip="true"
-      />
-    </h3>
-
-    <KFixedGrid
-      numCols="4"
-      gutter="16"
-      style="margin: 0 16px;"
-    >
-      <KFixedGridItem span="1">
-        <ChannelThumbnail
-          class="thumbnail"
-          v-bind="{ thumbnail, isMobile }"
-        />
-      </KFixedGridItem>
-      <KFixedGridItem
-        span="3"
-        alignment="auto"
-      >
-        <TextTruncator
-          :text="tagline"
-          :maxHeight="taglineHeight"
-          :showTooltip="false"
-        />
-      </KFixedGridItem>
-    </KFixedGrid>
-
-    <CoachContentLabel
-      v-if="isUserLoggedIn && !isLearner"
-      class="coach-content-label"
-      :value="numCoachContents"
-      :isTopic="true"
-    />
-
     <div
-      v-if="version"
-      class="version-wrapper"
-      :style="versionStyle"
+      v-if="explore"
+      class="explore"
     >
-      <p>{{ $tr('version', { version: version }) }}</p>
+      <h1>
+        {{ title }}
+      </h1>
     </div>
-    <div
-      v-if="isRemote"
-      class="wifi-icon"
-    >
-      <KIcon icon="wifi" />
+    <div v-else>
+      <h3
+        class="title"
+        dir="auto"
+        :style="{ borderBottom: `1px solid ${$themeTokens.fineLine}` }"
+      >
+        <TextTruncatorCss
+          :text="title"
+          :maxLines="2"
+          :showTooltip="true"
+        />
+      </h3>
+
+      <KFixedGrid
+        numCols="4"
+        gutter="16"
+        style="margin: 0 16px;"
+      >
+        <KFixedGridItem span="1">
+          <ChannelThumbnail
+            class="thumbnail"
+            v-bind="{ thumbnail, isMobile }"
+          />
+        </KFixedGridItem>
+        <KFixedGridItem
+          span="3"
+          alignment="auto"
+        >
+          <TextTruncatorCss
+            :text="tagline"
+            :maxLines="4"
+            :showTooltip="false"
+          />
+        </KFixedGridItem>
+      </KFixedGrid>
+
+      <CoachContentLabel
+        v-if="isUserLoggedIn && !isLearner"
+        class="coach-content-label"
+        :value="numCoachContents"
+        :isTopic="true"
+      />
+
+      <div
+        v-if="version"
+        class="version-wrapper"
+        :style="versionStyle"
+      >
+        <p>{{ $tr('version', { version: version }) }}</p>
+      </div>
+      <div
+        v-if="isRemote"
+        class="wifi-icon"
+      >
+        <KIcon icon="wifi" />
+      </div>
     </div>
 
   </router-link>
@@ -74,7 +84,7 @@
   import { validateLinkObject } from 'kolibri.utils.validators';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
+  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import ChannelThumbnail from './ChannelThumbnail';
 
   export default {
@@ -82,7 +92,7 @@
     components: {
       ChannelThumbnail,
       CoachContentLabel,
-      TextTruncator,
+      TextTruncatorCss,
     },
     mixins: [responsiveWindowMixin],
     props: {
@@ -124,6 +134,11 @@
         required: false,
         default: false,
       },
+      explore: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
     },
     computed: {
       ...mapGetters(['isLearner', 'isUserLoggedIn']),
@@ -137,12 +152,6 @@
           marginBottom: `${this.windowGutter}px`,
           minHeight: `${this.overallHeight}px`,
         };
-      },
-      titleHeight() {
-        return 60;
-      },
-      taglineHeight() {
-        return 155;
       },
       versionStyle() {
         return {
@@ -198,6 +207,20 @@
     }
   }
 
+  .explore {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 270px;
+    text-align: center;
+
+    h1 {
+      padding: 0;
+      margin: 0 20px;
+    }
+  }
+
   .title {
     padding: 0 48px $margin $margin;
   }
@@ -227,7 +250,8 @@
     position: absolute;
     right: 0;
     bottom: 0;
-    padding: 10px;
+    padding: 20px;
+    margin: 0;
   }
 
 </style>

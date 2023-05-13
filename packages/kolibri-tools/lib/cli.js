@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
-const mkdirp = require('mkdirp');
 const program = require('commander');
 const checkVersion = require('check-node-version');
 const ini = require('ini');
@@ -154,7 +153,7 @@ function runWebpackBuild(mode, bundleData, devServer, options, cb = null) {
           timings: true, // modules timing information
           performance: true, // info about oversized assets
         });
-        mkdirp.sync('./.stats');
+        fs.mkdirSync('./.stats', { recursive: true });
         for (const stat of statsJson.children) {
           fs.writeFileSync(`.stats/${stat.name}.json`, JSON.stringify(stat, null, 2), {
             encoding: 'utf-8',
@@ -422,6 +421,7 @@ program
 const localeDataFolderDefault = filePath(get(config, ['kolibri:i18n', 'locale_data_folder']));
 const globalWebpackConfigDefault = filePath(get(config, ['kolibri:i18n', 'webpack_config']));
 const langInfoConfigDefault = filePath(get(config, ['kolibri:i18n', 'lang_info']));
+const langIgnoreDefaults = list(get(config, ['kolibri:i18n', 'ignore'], ''));
 
 // Path to the kolibri locale language_info file, which we use if we are running
 // from inside the Kolibri repository.
@@ -535,7 +535,7 @@ function _addPathOptions(cmd) {
       '-i, --ignore <patterns...>',
       'Ignore these comma separated patterns',
       list,
-      ignoreDefaults
+      langIgnoreDefaults.length ? langIgnoreDefaults : ignoreDefaults
     )
     .option('-n , --namespace <namespace>', 'Set namespace for string extraction')
     .option(

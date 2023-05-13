@@ -4,7 +4,6 @@ const path = require('path');
 const resolve = require('resolve');
 const espree = require('espree');
 const escodegen = require('escodegen');
-const mkdirp = require('mkdirp');
 const vueTemplateCompiler = require('vue-template-compiler');
 const scssParser = require('scss-parser');
 const createQueryWrapper = require('query-ast');
@@ -103,7 +102,6 @@ const distSpecFilePath = path.resolve(__dirname, '../dist/apiSpec.json');
 try {
   apiSpec = specModule(specFilePath);
 } catch (e) {
-  console.error(e);
   apiSpec = require(distSpecFilePath);
 }
 
@@ -262,7 +260,7 @@ function recurseAndCopySpecObject(specObj, targetPath) {
 
       const newDestFolder = path.join(destinationFolder, extraPath);
 
-      mkdirp.sync(newDestFolder);
+      fs.mkdirSync(newDestFolder, { recursive: true });
 
       const newSourceFolder = path.dirname(sourceFile);
 
@@ -303,7 +301,7 @@ function recurseAndCopySpecObject(specObj, targetPath) {
       } else {
         // Make a folder so that we have a directory structure that maps to the core API object structure
         const destinationFolder = path.resolve(path.join(distPath, ...pathsArray));
-        mkdirp.sync(destinationFolder);
+        fs.mkdirSync(destinationFolder, { recursive: true });
         resolveDependenciesAndCopy({
           sourcePath: obj[key],
           destinationFolder,
