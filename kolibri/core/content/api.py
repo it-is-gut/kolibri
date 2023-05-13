@@ -78,6 +78,10 @@ from kolibri.core.utils.pagination import ValuesViewsetLimitOffsetPagination
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
 from kolibri.core.utils.urls import join_url
 from kolibri.utils.conf import OPTIONS
+from kolibri.core.content.utils.embeddings_search import EmbeddingSearch
+
+import pandas as pd
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -461,6 +465,21 @@ class ContentNodeFilter(IdFilter):
         return queryset
 
     def filter_keywords(self, queryset, name, value):
+        # load sample data from pickle file (contains id and embeddings of the title)
+        try:
+            dir_path = os.path.dirname(os.path.realpath(__file__))
+            # full path, kolibri don't care
+            embeddings = pd.read_pickle(dir_path + "/utils/embeddings_by_id.pkl").transpose()
+
+            # Initilaize search class
+            embedding_search = EmbeddingSearch(embeddings)
+
+            best_match = embedding_search.search(value)
+
+            #print(best_match)
+        except Exception as e:
+            print(e)
+
         # all words with punctuation removed
         all_words = [w for w in re.split('[?.,!";: ]', value) if w]
         # words in all_words that are not stopwords
@@ -475,10 +494,8 @@ class ContentNodeFilter(IdFilter):
             ]
         )
 
-        # TODO: replace the static IDs with IDs from the model
-        ids = ["bf503b298a3d45caa1223dcdc953de51", "b9b23582c7734e5ba45ec77a1f5dda40", "10840286add94da8ae2b60dbf1eaaef2"]
-
-        return queryset.filter(id__in=ids)
+        result = queryset.filter(id__in=best_match)
+        return result
         # return queryset.filter(query)
 
     def bitmask_contains_and(self, queryset, name, value):
