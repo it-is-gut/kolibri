@@ -78,6 +78,9 @@ from kolibri.core.utils.pagination import ValuesViewsetLimitOffsetPagination
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
 from kolibri.core.utils.urls import join_url
 from kolibri.utils.conf import OPTIONS
+from kolibri.core.content.utils.embedding_search import EmbeddingSearch
+
+import pandas as pd
 
 logger = logging.getLogger(__name__)
 
@@ -322,31 +325,31 @@ class CharInFilter(BaseInFilter, CharFilter):
 
 
 contentnode_filter_fields = [
-    "parent",
-    "parent__isnull",
-    "prerequisite_for",
-    "has_prerequisite",
-    "related",
-    "exclude_content_ids",
-    "ids",
-    "content_id",
-    "channel_id",
-    "kind",
-    "include_coach_content",
-    "kind_in",
-    "contains_quiz",
-    "grade_levels",
-    "resource_types",
-    "learning_activities",
-    "accessibility_labels",
-    "categories",
-    "learner_needs",
-    "keywords",
-    "channels",
-    "languages",
-    "tree_id",
-    "lft__gt",
-    "rght__lt",
+    #"parent",
+    #"parent__isnull",
+    #"prerequisite_for",
+    #"has_prerequisite",
+    #"related",
+    #"exclude_content_ids",
+    #"ids",
+    #"content_id",
+    #"channel_id",
+    #"kind",
+    #"include_coach_content",
+    #"kind_in",
+    #"contains_quiz",
+    #"grade_levels",
+    #"resource_types",
+    #"learning_activities",
+    #"accessibility_labels",
+    #"categories",
+    #"learner_needs",
+    "keywords"
+    #"channels",
+    #"languages",
+    #"tree_id",
+    #"lft__gt",
+    #"rght__lt",
 ]
 
 
@@ -461,6 +464,16 @@ class ContentNodeFilter(IdFilter):
         return queryset
 
     def filter_keywords(self, queryset, name, value):
+        # load sample data from pickle file (contains id and embeddings of the title)
+        embeddings = pd.read_pickle("embeddings_by_id.pkl")
+
+        # Initilaize search class
+        embedding_search = EmbeddingSearch(embeddings)
+
+        best_match = embedding_search.search()
+
+        print(best_match)
+
         # all words with punctuation removed
         all_words = [w for w in re.split('[?.,!";: ]', value) if w]
         # words in all_words that are not stopwords
