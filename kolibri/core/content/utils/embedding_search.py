@@ -18,11 +18,6 @@ class EmbeddingSearch:
         return normalized_embeddings
 
     def encoder(self, texts):
-        '''
-        Use huggingface pipeline class to get vector embeddings for each token,
-        then take the mean across tokens to get one vector embbedding per text
-        '''
-
         embeddings = []
         loader = DataLoader(texts, batch_size=32, shuffle=False)
         for inputs in tqdm(loader):

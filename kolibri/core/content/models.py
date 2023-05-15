@@ -53,6 +53,8 @@ from kolibri.core.mixins import FilterByUUIDQuerysetMixin
 from kolibri.utils.data import ChoicesEnum
 from kolibri.utils.time_utils import local_now
 
+from django.db import models
+
 
 PRESET_LOOKUP = dict(format_presets.choices)
 
@@ -507,3 +509,12 @@ class ContentRemovalRequest(ContentRequest):
 
     class Meta:
         proxy = True
+
+
+class ContentNodeEmbedding(models.Model):
+    id = models.CharField(max_length=100, primary_key=True)
+    embedding = models.TextField()
+
+
+
+

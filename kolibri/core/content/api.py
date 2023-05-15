@@ -78,12 +78,17 @@ from kolibri.core.utils.pagination import ValuesViewsetLimitOffsetPagination
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
 from kolibri.core.utils.urls import join_url
 from kolibri.utils.conf import OPTIONS
+from kolibri.core.content.models import ContentNodeEmbedding
 from kolibri.core.content.utils.embeddings_search import EmbeddingSearch
 
 import pandas as pd
 import os
 
+
 logger = logging.getLogger(__name__)
+
+# initialize the class that loads the embeddings once
+embedded_search = EmbeddingSearch()
 
 
 def get_cache_key(*args, **kwargs):
@@ -355,6 +360,7 @@ contentnode_filter_fields = [
 
 
 class ContentNodeFilter(IdFilter):
+
     kind = ChoiceFilter(
         method="filter_kind",
         choices=(content_kinds.choices + (("content", _("Resource")),)),
@@ -465,38 +471,15 @@ class ContentNodeFilter(IdFilter):
         return queryset
 
     def filter_keywords(self, queryset, name, value):
-        # load sample data from pickle file (contains id and embeddings of the title)
         try:
-            dir_path = os.path.dirname(os.path.realpath(__file__))
-            # full path, kolibri don't care
-            embeddings = pd.read_pickle(dir_path + "/utils/embeddings_by_id.pkl").transpose()
+            best_match = embedded_search.search(value)
 
-            # Initilaize search class
-            embedding_search = EmbeddingSearch(embeddings)
-
-            best_match = embedding_search.search(value)
-
-            #print(best_match)
+            result = queryset.filter(id__in=best_match)
         except Exception as e:
             print(e)
+            result = queryset.filter(id__in=[])
 
-        # all words with punctuation removed
-        all_words = [w for w in re.split('[?.,!";: ]', value) if w]
-        # words in all_words that are not stopwords
-        critical_words = [w for w in all_words if w not in stopwords_set]
-        words = critical_words if critical_words else all_words
-        query = union(
-            [
-                # all critical words in title
-                intersection([Q(title__icontains=w) for w in words]),
-                # all critical words in description
-                intersection([Q(description__icontains=w) for w in words]),
-            ]
-        )
-
-        result = queryset.filter(id__in=best_match)
         return result
-        # return queryset.filter(query)
 
     def bitmask_contains_and(self, queryset, name, value):
         return queryset.has_all_labels(name, value.split(","))

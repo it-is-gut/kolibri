@@ -1,0 +1,10 @@
+[
+  {
+    "model": "content.contentnodeembedding",
+    "pk": "test",
+    "fields":{
+      "id": "thisisaid",
+      "embedding": "asdf"
+    }
+  }
+]
